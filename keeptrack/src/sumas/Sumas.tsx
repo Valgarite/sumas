@@ -15,7 +15,7 @@ const generarNumerosAleatorios = (min: number, max: number) => {
 
 function SumasPage() {
   const [confirmarVenta, setConfirmarVenta] = useState(false)
-  const [numEjercicio, setNumEjercicio] = useState(0)
+  const [numEjercicio, setNumEjercicio] = useState(1)
   const abrirEjercicio= (i:number) => setNumEjercicio(i)
   const [numerosAleatorios] = useState(generarNumerosAleatorios(1, 9))
   const [numerosAleatorios2] = useState(generarNumerosAleatorios(1, 9))
@@ -35,29 +35,48 @@ function SumasPage() {
     setConfirmarVenta(true)
   }
   const handleConfirmClose = () => setConfirmarVenta(false);
-  const [textoResultado, setTextoResultado] = useState('')
+  const [textoResultado, setTextoResultado] = useState('Revisar')
   const [inputValue, setInputValue] = useState('');
+  let [numResult, setNumResult] = useState(1);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const userAnswer = parseInt(event.target.value);
     setInputValue(event.target.value)
   }
 
-  const validarEjercicio = (num1: number, num2: number, respuestaUsuario: string) => {
-    const respuestaInt = parseInt(respuestaUsuario)
+  const validarEjercicio = (num1: number, num2: number, respuestaUsuario: number, i: number) => {
+    //const respuestaInt = parseInt(respuestaUsuario)
     const respuestaReal = num1 + num2
-    if (respuestaReal == respuestaInt) {
+    if (respuestaReal == respuestaUsuario) {
       setTextoResultado('Correcto')
+      setNumEjercicio(i+=1)
+      setNumResult(1)
     } else {
       setTextoResultado('¡Vuelve a intentarlo!')
+      setNumResult(1)
     }
   }
+
+  const botonValores = (operacion: boolean) =>{
+    if (operacion){
+      setNumResult(numResult+=1)
+      if(numResult==19){
+        setNumResult(1)
+      }
+    } else{
+      setNumResult(numResult-=1)
+    }
+  }
+  const botonReiniciar = () =>{
+    setNumResult(1)
+  }
+
 
   return (
     <>
       <p>{numerosAleatorios.map((numero, i) => <span key={i}>{numero}     </span>)}</p>
       <p>{numerosAleatorios2.map((numero, i) => <span key={i}>{numero}     </span>)}</p>
-      <p>{resultadosParaMostrar.map((i, index) => <span key={index}><button onClick={() => handleConfirm(index)}>{i}</button></span>)}</p>
+      <p>{resultadosParaMostrar.map((i, index) => <span key={index}><button onClick={() => handleConfirm(index)}>{index+1}</button></span>)}</p>
 
       <Modal
         className="Modal-SeleccionarCliente"
@@ -65,16 +84,18 @@ function SumasPage() {
         onHide={handleConfirmClose}
       >
         <Modal.Header closeButton>
-          <Modal.Title>Modal</Modal.Title>
+          <Modal.Title>Ejercicio | {numEjercicio + 1}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Card>
             <CardHeader>
               <p>{numerosAleatorios[numEjercicio]}</p>
               <p>{numerosAleatorios2[numEjercicio]}</p>
-              <p>{resultadosParaMostrar[numEjercicio]}</p>
-              <input type='text' value={inputValue} onChange={handleInputChange}></input>
-              <button onClick={() => validarEjercicio(numerosAleatorios[numEjercicio], numerosAleatorios2[numEjercicio], inputValue)}>{textoResultado}</button>
+              {/*<button onClick={()=>botonValores(false)}>Bajar</button>*/}
+              <input type='text' value={numResult} onChange={handleInputChange}></input>
+              <button onClick={()=>botonValores(true)}>Subir</button>
+              <button onClick={()=>validarEjercicio(numerosAleatorios[numEjercicio], numerosAleatorios2[numEjercicio], numResult, numEjercicio)}>{textoResultado||'Revisar'}</button>
+              <button onClick={()=>botonReiniciar()}>Borrar</button>
             </CardHeader>
           </Card>
         </Modal.Body>
