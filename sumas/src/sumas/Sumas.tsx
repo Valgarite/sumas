@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { Card, Modal } from 'react-bootstrap';
 import CardHeader from 'react-bootstrap/esm/CardHeader';
 import './Sumas.css';
+import '../imagenes/buena.png'
+import borrador from '../imagenes/borrador.png'
+import subir from '../imagenes/flecha.png'
 
 const generarNumerosAleatorios = (min: number, max: number) => {
   const resultado: number[] = [];
@@ -40,21 +43,22 @@ function SumasPage() {
     abrirEjercicio(i)
     setTextoResultado('')
     setConfirmarVenta(true)
+    setInicio(Date.now())
   }
   const handleConfirmClose = () => setConfirmarVenta(false);
   const [textoResultado, setTextoResultado] = useState('Revisar')
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue,setInputValue] = useState('');
   let [numResult, setNumResult] = useState(1);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const userAnswer = parseInt(event.target.value);
+    console.log(inputValue)
     setInputValue(event.target.value)
   }
 
   const validarEjercicio = (num1: number, num2: number, respuestaUsuario: number, i: number) => {
     //const respuestaInt = parseInt(respuestaUsuario)
     const respuestaReal = num1 + num2
-    if (respuestaReal == respuestaUsuario) {
+    if (respuestaReal === respuestaUsuario) {
       setTextoResultado('Correcto')
       setResueltos(prevState => ({
         ...prevState,
@@ -84,7 +88,7 @@ function SumasPage() {
   const botonValores = (operacion: boolean) =>{
     if (operacion){
       setNumResult(numResult+=1)
-      if(numResult==19){
+      if(numResult===19){
         setNumResult(1)
       }
     } else{
@@ -96,15 +100,7 @@ function SumasPage() {
   }
 
   const [completado, setCompletado] = useState(false)
-  const completarJuego = (listo: boolean) =>{
-    if(listo){
-    return(
-    <>
-      <p>¡Juego completado!</p>
-    </>)
-    }
-  }
-
+  
   const mostrarResueltos = (i: number) =>{
     if(resueltos[i]){
       return resultadosParaMostrar[i]
@@ -113,39 +109,54 @@ function SumasPage() {
     }
   }
 
+  const setBotonClass = (i:number)=>{
+    if(mostrarResueltos(i)==="?"){
+      return 'sinResolver'
+    } else {
+      return 'Resuelto'
+    }
+  }
+
+  const [inicio, setInicio] = useState(0);
   return (
     <>
-      <p>{resultadosParaMostrar.map((i: number, index: number) =>
+      <p className='Ejercicios'>{resultadosParaMostrar.map((i: number, index: number) =>
         <span key={index}>
-          <button onClick={() => handleConfirm(index)}>
-            {numerosAleatorios[index]}<br></br>
-            {numerosAleatorios2[index]}<hr></hr>
+          <button className={setBotonClass(index)} onClick={() => handleConfirm(index)}>
+            &nbsp;&nbsp;{numerosAleatorios[index]}+<br></br>
+            <u>&nbsp;{numerosAleatorios2[index]}&nbsp;</u><hr></hr>
             {mostrarResueltos(index)}
           </button>
         </span>)}
       </p>
-
-      {completarJuego(completado)}
-
       <Modal
         className="Modal-SeleccionarCliente"
         show={confirmarVenta}
         onHide={handleConfirmClose}
       >
-        <Modal.Header closeButton>
+        <Modal.Header>
           <Modal.Title>Ejercicio | {numEjercicio + 1}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Card>
             <CardHeader>
-              <p>{numerosAleatorios[numEjercicio]}</p>
-              <p>{numerosAleatorios2[numEjercicio]}</p>
-              {/*<button onClick={()=>botonValores(false)}>Bajar</button>*/}
-              <input type='text' value={numResult} onChange={handleInputChange}></input>
-              <button onClick={()=>botonValores(true)}>Subir</button>
-              <button onClick={()=>validarEjercicio(numerosAleatorios[numEjercicio], numerosAleatorios2[numEjercicio], numResult, numEjercicio)}>{textoResultado||'Revisar'}</button>
-              <button onClick={()=>botonReiniciar()}>Borrar</button>
-            </CardHeader>
+              
+              <p id='Sumandos'>
+              {numerosAleatorios[numEjercicio]}<br></br>
+              {numerosAleatorios2[numEjercicio]}
+              </p>
+              <input id='Entrada' type='text' value={numResult} onChange={handleInputChange}></input>
+              <button className='Panel' onClick={()=>botonValores(true)}><img src={subir} alt="subir" width='auto'></img></button>
+              <button className='Panel' onClick={()=>validarEjercicio(numerosAleatorios[numEjercicio], numerosAleatorios2[numEjercicio], numResult, numEjercicio)}>{textoResultado||'Revisar'}</button>
+              <button className='Panel' onClick={()=>botonReiniciar()}><img src={borrador} alt="borra" width='auto'></img></button>
+              <Modal
+              className='JuegoCompletado'
+              show={completado}>
+                <p id='Felicidades' className='Resultados'>¡Felicidades!</p>
+                <p id='Tiempo' className='Resultados'>Lo hiciste en {Math.round((Date.now()-inicio)/1000)} segundos</p>
+              </Modal>
+
+              </CardHeader>
           </Card>
         </Modal.Body>
       </Modal>
