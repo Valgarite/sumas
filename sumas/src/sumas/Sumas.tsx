@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Card, Modal } from 'react-bootstrap';
 import CardHeader from 'react-bootstrap/esm/CardHeader';
+import './Sumas.css';
 
 const generarNumerosAleatorios = (min: number, max: number) => {
   const resultado: number[] = [];
@@ -12,7 +13,6 @@ const generarNumerosAleatorios = (min: number, max: number) => {
   return resultado
 }
 
-
 function SumasPage() {
   const [confirmarVenta, setConfirmarVenta] = useState(false)
   const [numEjercicio, setNumEjercicio] = useState(1)
@@ -20,10 +20,17 @@ function SumasPage() {
   const [numerosAleatorios] = useState(generarNumerosAleatorios(1, 9))
   const [numerosAleatorios2] = useState(generarNumerosAleatorios(1, 9))
   let resultados: number[] = []
+  const [resueltos, setResueltos] = useState<{ [index: number]: boolean }>({});
+  
   const resultadosEjercicio = () => {
     for (let i = 0; i < numerosAleatorios.length; i++) {
       const resultado = numerosAleatorios[i] + numerosAleatorios2[i]
       resultados.push(resultado)
+      setResueltos(prevState => ({
+        ...prevState,
+        [i]: false
+      }));
+      
     }
     return resultados
   }
@@ -49,12 +56,29 @@ function SumasPage() {
     const respuestaReal = num1 + num2
     if (respuestaReal == respuestaUsuario) {
       setTextoResultado('Correcto')
-      setNumEjercicio(i+=1)
-      setNumResult(1)
+      setResueltos(prevState => ({
+        ...prevState,
+        [numEjercicio]: true
+      }));
+      if(numEjercicio<7){
+        setNumEjercicio(i+=1)
+      }
+      setNumResult(1)      
     } else {
       setTextoResultado('¡Vuelve a intentarlo!')
       setNumResult(1)
     }
+    let todosResueltos: boolean = true
+    for (let i = 0; i < 7; i++) {
+      if (!resueltos[i]) {
+        todosResueltos = false;
+        break;
+      }
+    }
+    if (todosResueltos) {
+      setCompletado(true)
+    }
+    
   }
 
   const botonValores = (operacion: boolean) =>{
@@ -71,12 +95,37 @@ function SumasPage() {
     setNumResult(1)
   }
 
+  const [completado, setCompletado] = useState(false)
+  const completarJuego = (listo: boolean) =>{
+    if(listo){
+    return(
+    <>
+      <p>¡Juego completado!</p>
+    </>)
+    }
+  }
+
+  const mostrarResueltos = (i: number) =>{
+    if(resueltos[i]){
+      return resultadosParaMostrar[i]
+    }else{
+      return "?"
+    }
+  }
 
   return (
     <>
-      <p>{numerosAleatorios.map((numero, i) => <span key={i}>{numero}     </span>)}</p>
-      <p>{numerosAleatorios2.map((numero, i) => <span key={i}>{numero}     </span>)}</p>
-      <p>{resultadosParaMostrar.map((i, index) => <span key={index}><button onClick={() => handleConfirm(index)}>{index+1}</button></span>)}</p>
+      <p>{resultadosParaMostrar.map((i: number, index: number) =>
+        <span key={index}>
+          <button onClick={() => handleConfirm(index)}>
+            {numerosAleatorios[index]}<br></br>
+            {numerosAleatorios2[index]}<hr></hr>
+            {mostrarResueltos(index)}
+          </button>
+        </span>)}
+      </p>
+
+      {completarJuego(completado)}
 
       <Modal
         className="Modal-SeleccionarCliente"
