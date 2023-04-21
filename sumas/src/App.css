@@ -1,7 +1,7 @@
 @import '../node_modules/mini.css/dist/mini-default.min.css';
 
 div.juego{
-    background-image: url('.\\imagenes\\fondo.jpeg');
+    background-image: url('./imagenes/fondo.jpeg');
     background-size: auto;
     background-repeat: no-repeat;
     background-position: center;
